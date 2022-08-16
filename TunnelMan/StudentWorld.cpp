@@ -313,14 +313,16 @@ bool StudentWorld::moveInD(GraphObject::Direction dir, int x, int y)
 
 Protester* StudentWorld::protesterInR(int r, Actor* a)
 {
+	//Determine if Protester if in specified radius from Actor
 
+	//Loop though vector of actors
 	vector<Actor*>::iterator it;
 
 	for (it = m_actors.begin(); it != m_actors.end(); it++)
 	{
-		if ((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER)
-			if (isWithinR(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), r))
-				return dynamic_cast<Protester*>(*it);
+		//If ID matches that of either protester && is within radius
+		if (((*it)->getID() == TID_PROTESTER || (*it)->getID() == TID_HARD_CORE_PROTESTER) && isWithinR(a->getX(), a->getY(), (*it)->getX(), (*it)->getY(), r))
+				return dynamic_cast<Protester*>(*it); //Return p
 	}
 
 	return nullptr;
@@ -335,6 +337,7 @@ int StudentWorld::init()
 	m_ticksElapsed = 0;
 	m_protesters = 0;
 
+	//Add Earth
 	for (int i = 0; i < 64; i++)
 	{
 		for (int j = 0; j < 60; j++)
@@ -344,6 +347,7 @@ int StudentWorld::init()
 		}
 	}
 
+	//Add Tunnelman
 	m_t = new Tunnelman(this);
 
 	int B = min(int(getLevel() / 2 + 2), 9);
@@ -352,8 +356,9 @@ int StudentWorld::init()
 
 	int L = min(int(2 + getLevel()), 21);
 
-	m_barrels = L;
+	m_barrels = L; //# of barrels
 
+	//Add Gold, Boulders && Barrels
 	for (int i = 0; i < B; i++)
 	{
 		int x, y;
@@ -404,6 +409,7 @@ int StudentWorld::move()
 	displayText(getScore(), getLevel(), getLives(), m_t->getHealth(),
 		m_t->getAmmo(), m_t->getGold(), m_t->getSonar(), m_barrels);
 
+	//Ask all actors to do something
 	vector<Actor*>::iterator it;
 
 	for (it = m_actors.begin(); it != m_actors.end(); it++)
@@ -422,12 +428,16 @@ int StudentWorld::move()
 
 	}
 
+	//Ask Tunnelman to do something
 	m_t->doSomething();
 
+	//Add goodies
 	addGoodie();
 
+	//Add Protesters
 	addProtesters();
 
+	//Remove all dead actors from game
 	vector<Actor*>::iterator it1;
 
 	for (it1 = m_actors.begin(); it1 != m_actors.end();)
@@ -464,6 +474,9 @@ void StudentWorld::cleanUp()
 	delete m_t;
 }
 
+
+//TODO: FIXME; find way to re-write this function while
+//mainting full functionality
 
 void StudentWorld::findExit(Protester* p)
 {
