@@ -28,9 +28,9 @@ public:
 
 	virtual void cleanUp();
 
-	std::string displayText(int s, int lvl, int lives, int hlth, int sq, int g, int snr, int b);
+	void displayText(int s, int lvl, int lives, int hlth, int sq, int g, int snr, int b);
 
-	void updateText();
+	//void updateText();
 
 	Tunnelman* getPlayer();
 	Protester* protesterInR(int r, Actor* a);
@@ -44,7 +44,7 @@ public:
 	void decProtesters();
 	void findExit(Protester* p); //TODO:
 
-	bool digEarth(int x, int y);
+	bool removeDirt(int x, int y);
 	bool isWithinR(int x1, int y1, int x2, int y2, int r);
 	bool actorWithinR(int x, int y, int r);
 	bool isAboveGround(int x, int y);
@@ -68,10 +68,11 @@ private:
 
 	int m_field[64][64];
 
-	struct Grid
+
+	struct Maze
 	{
 		int x, y;
-		Grid(int a, int b) : x(a), y(b) {}
+		Maze(int a, int b) : x(a), y(b) {}
 	};
 
 	//Other Implementation

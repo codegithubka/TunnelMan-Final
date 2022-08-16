@@ -95,7 +95,7 @@ void Tunnelman::doSomething()
 		return;
 
 	//if can remove dirt, play sound
-	if (getWorld()->digEarth(getX(), getY()))
+	if (getWorld()->removeDirt(getX(), getY()))
 		getWorld()->playSound(SOUND_DIG);
 
 	//get key pressed
@@ -253,7 +253,7 @@ void Earth::doSomething() {} //does not do anything
 Boulder::Boulder(StudentWorld* world, int x, int y)
 	:Actor(world, TID_BOULDER, x, y, down, 1.0, 1)
 {
-	world->digEarth(x, y); //FIXME:
+	world->removeDirt(x, y); //FIXME:
 	m_stable = true;
 	m_falling = false;
 	m_ticks = 0;
@@ -1023,7 +1023,7 @@ bool Protester::intersection()
 }
 
 
-//FIXME: Place directToTMan in Protester::doSomething(0 method
+//FIXME: Place directToTMan in Protester::doSomething() method
 
 GraphObject::Direction Protester::directToTMan()
 {

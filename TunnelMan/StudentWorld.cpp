@@ -35,16 +35,10 @@ Tunnelman* StudentWorld::getPlayer()
 	return m_t;
 }
 
-void StudentWorld::updateText()
+void StudentWorld::displayText(int s, int lvl, int lives, int hlth, int sq, int g, int snr, int b)
 {
-	string txt = displayText(getScore(), getLevel(), getLives(), m_t->getHealth(),
-		m_t->getAmmo(), m_t->getGold(), m_t->getSonar(), m_barrels);
 
-	setGameStatText(txt);
-}
-//
-string StudentWorld::displayText(int s, int lvl, int lives, int hlth, int sq, int g, int snr, int b)
-{
+
 	stringstream ss;
 
 	ss.fill('0');
@@ -55,74 +49,85 @@ string StudentWorld::displayText(int s, int lvl, int lives, int hlth, int sq, in
 		<< " Hlth: " << setw(3) << hlth * 10 << '%' << " Wtr: " << setw(2)
 		<< sq << " Gld: " << setw(2) << g << " Sonar: " << setw(2) << snr
 		<< " Oil Left: " << setw(2) << b;
-	return ss.str();
+
+	string text = ss.str();
+	setGameStatText(text);
 }
 
 
 void StudentWorld::addActor(Actor* a)
 {
+	//push back actor to vector 
 	m_actors.push_back(a);
 }
 
 void StudentWorld::addGoodie()
 {
 
+	//add goodies
+
 	int x, y;
 	int G = (int)getLevel() + 300;
 
 	if (int(rand() % G) + 1 == 1) {
 		if (int(rand() % 5) + 1 == 1) {
-			addActor(new Sonar(this, 0, 60));
+			addActor(new Sonar(this, 0, 60)); //adds sonar
 		}
 		else {
 			do {
 				x = rand() % 60 + 1;
 				y = rand() % 60 + 1;
 			} while (isEarth(x, y));
-			addActor(new WaterPool(this, x, y));
+			addActor(new WaterPool(this, x, y)); //adds water pool
 		}
 	}
 }
 
-bool StudentWorld::digEarth(int x, int y)
+bool StudentWorld::removeDirt(int x, int y)
 {
 	bool empty = false;
 
+	//Remove dirt at (x, y)
 	for (int i = x; i < x + 4; i++)
 	{
 		for (int j = y; j < y + 4; j++)
 		{
-			if (m_earth[i][j] != nullptr)
+			if (m_earth[i][j] != nullptr) //if != to NULL
 			{
-				delete m_earth[i][j];
+				delete m_earth[i][j]; //delete and set to nullptr
 				m_earth[i][j] = nullptr;
 				empty = true;
 			}
 		}
 	}
 
-	return empty;
+	return empty; //return true, if now empty
 }
 
 void StudentWorld::decBarrel()
 {
+	//decrement barrels
 	m_barrels--;
 }
 
 bool StudentWorld::isWithinR(int x1, int y1, int x2, int y2, int r)
 {
-	if (r >= sqrt(pow(x1 - x2, 2.0) + pow(y1 - y2, 2.0)))
+	//Determine if two sets of coords are within a given radius
+	if (r < sqrt(pow(x1 - x2, 2.0) + pow(y1 - y2, 2.0)))
 	{
-		return true;
+		return false;
 	}
-	return false;
+	return true; //true if in given r
 }
 
 bool StudentWorld::actorWithinR(int x, int y, int r)
 {
+	//Determine if actor is within specified radius
 	vector<Actor*>::iterator it;
+	//Loop though the vector of actors
 	for (it = m_actors.begin(); it != m_actors.end(); it++)
 	{
+		//if an actor is within specified r, then return true
 		if (isWithinR(x, y, (*it)->getX(), (*it)->getY(), r))
 			return true;
 	}
@@ -131,12 +136,16 @@ bool StudentWorld::actorWithinR(int x, int y, int r)
 
 void StudentWorld::addBGB(int& x, int& y)
 {
+	//FIXME: Change for loop maybe!
+
+	//add boulders, barrels, gold
 	int i, j;
 	int ax, ay;
 	int dx, dy;
 
 	bool cont = false;
 
+	//makes sure that actors do not appear on top of each other
 	while (!cont)
 	{
 		x = rand() % 59 + 1;
@@ -144,16 +153,20 @@ void StudentWorld::addBGB(int& x, int& y)
 		if (m_actors.size() == 0)
 			cont = true;
 
+		//Loop though vector of actors
 		for (size_t i = 0; i < m_actors.size(); i++)
 		{
+			//get actor coords
 			ax = m_actors[i]->getX();
 			ay = m_actors[i]->getY();
 
 			dx = x - ax;
 			dy = y - ay;
 
+			//distance between random coords (x, y) and actor coords
 			int r = sqrt(pow(dx, 2.0) + pow(dy, 2.0));
 
+			//if radius is less than 4, then re-generate coords and repeat
 			if (r <= 4.0)
 			{
 				cont = false;
@@ -169,18 +182,22 @@ void StudentWorld::addBGB(int& x, int& y)
 
 void StudentWorld::addProtesters()
 {
-	int a_t = max(25, 200 - (int)getLevel());
-	int num = fmin(15, 2 + getLevel() * 1.5);
+	//Add protesters
 
-	if (m_firstTick == true || (m_ticksElapsed > a_t && m_protesters < num))
+	int T = max(25, 200 - (int)getLevel()); //T number of ticks have to pass
+	int P = fmin(15, 2 + getLevel() * 1.5); //Target Number of Protesters
+
+	//if is first tick or elapsed ticks > T and # of protestors < Target
+	if (m_firstTick == true || (m_ticksElapsed > T && m_protesters < P))
 	{
-		if (rand() % 100 + 1 > min(90, (int)getLevel() * 10 + 30))
-			addActor(new RegularProtester(this));
+		//Get probability of hardcore
+		if (rand() % 100 + 1 <= min(90, (int)getLevel() * 10 + 30))
+			addActor(new HardcoreProtester(this)); //add HP
 		else
-			addActor(new HardcoreProtester(this));
+			addActor(new RegularProtester(this)); //add RP
 
-		m_ticksElapsed = 0;
-		m_protesters++;
+		m_ticksElapsed = 0; //ticks after adding protester
+		m_protesters++; //increment # of protesters
 		m_firstTick = false;
 	}
 	m_ticksElapsed++;
@@ -188,6 +205,7 @@ void StudentWorld::addProtesters()
 
 bool StudentWorld::isAboveGround(int x, int y)
 {
+	//Determine the space at x: x + 4 is empty
 	for (int i = x; i < x + 4; i++)
 	{
 		if (m_earth[i][y] != nullptr)
@@ -198,6 +216,7 @@ bool StudentWorld::isAboveGround(int x, int y)
 
 bool StudentWorld::isEarth(int x, int y)
 {
+	//For (x, y) determine if is earth
 	for (int i = x; i < x + 4; i++)
 	{
 		for (int j = y; j < y + 4; j++)
@@ -211,33 +230,44 @@ bool StudentWorld::isEarth(int x, int y)
 
 bool StudentWorld::isBoulder(int x, int y, int r)
 {
+	//Determine if is Boulder
 	vector<Actor*>::iterator it;
+	//Loop though vector of actors 
 	for (it = m_actors.begin(); it != m_actors.end(); it++)
 	{
+		//If ID = Boulder ID and is within radius r
+			//return true
 		if ((*it)->getID() == TID_BOULDER && isWithinR(x, y, (*it)->getX(), (*it)->getY(), r))
 			return true;
 	}
 
-	return false;
+	return false; //not a boulder
 }
 
 bool StudentWorld::tManInR(int r, Actor* a)
 {
-	return isWithinR(a->getX(), a->getY(), m_t->getX(), m_t->getY(), r);
+	//Determine if Tunnelman is within specified radius of Actor a
+	if (isWithinR(a->getX(), a->getY(), m_t->getX(), m_t->getY(), r))
+		return true;
+	return false;
 }
 
 void StudentWorld::isClose(int x, int y, int r)
 {
-	int i, j;
 	vector<Actor*>::iterator it;
 
-	for (it = m_actors.begin(); it != m_actors.end(); i++)
+	//Iterate through vector of actors
+	for (it = m_actors.begin(); it != m_actors.end(); it++)
 	{
+		//If actor is gold or barrel
 		if ((*it)->getID() == TID_GOLD || (*it)->getID() == TID_BARREL)
 		{
-			i = (*it)->getX();
-			j = (*it)->getY();
+			//get actor coords
+			int i = (*it)->getX();
+			int j = (*it)->getY();
 
+			//if actor is within the specified radius from input coords
+				//then set actor to visible (gold & barrel of oil)
 			if (r >= sqrt(pow(x - i, 2.0) + pow(y - j, 2.0)))
 				(*it)->setVisible(true);
 		}
@@ -246,11 +276,17 @@ void StudentWorld::isClose(int x, int y, int r)
 
 void StudentWorld::decProtesters()
 {
+	//decrement # of protesters
 	m_protesters--;
 }
 
 bool StudentWorld::moveInD(GraphObject::Direction dir, int x, int y)
 {
+	//Determine if step in specified direction is possible
+
+	//For specified direction:
+		//If the space one step in that direction has no boulder or earth
+			//Then return true
 	switch (dir)
 	{
 	case GraphObject::left:
@@ -272,11 +308,12 @@ bool StudentWorld::moveInD(GraphObject::Direction dir, int x, int y)
 	default:
 		return false;
 	}
-	return false;
+	return false; //Move not possible
 }
 
 Protester* StudentWorld::protesterInR(int r, Actor* a)
 {
+
 	vector<Actor*>::iterator it;
 
 	for (it = m_actors.begin(); it != m_actors.end(); it++)
@@ -362,7 +399,10 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-	updateText();
+	//Update Text
+
+	displayText(getScore(), getLevel(), getLives(), m_t->getHealth(),
+		m_t->getAmmo(), m_t->getGold(), m_t->getSonar(), m_barrels);
 
 	vector<Actor*>::iterator it;
 
@@ -436,14 +476,14 @@ void StudentWorld::findExit(Protester* p)
 	int px = p->getX();
 	int py = p->getY();
 
-	queue <Grid> Q;
-	Q.push(Grid(60, 60));
+	queue <Maze> Q;
+	Q.push(Maze(60, 60));
 
 	m_field[60][60] = 1;
 
 	while (!Q.empty())
 	{
-		Grid g = Q.front();
+		Maze g = Q.front();
 		Q.pop();
 
 		int x = g.x;
@@ -453,7 +493,7 @@ void StudentWorld::findExit(Protester* p)
 
 		if (moveInD(GraphObject::left, x, y) && m_field[x - 1][y] == 0)
 		{
-			Q.push(Grid(x - 1, y));
+			Q.push(Maze(x - 1, y));
 			m_field[x - 1][y] = m_field[x][y] + 1;
 		}
 
@@ -461,7 +501,7 @@ void StudentWorld::findExit(Protester* p)
 
 		if (moveInD(GraphObject::right, x, y) && m_field[x + 1][y] == 0)
 		{
-			Q.push(Grid(x + 1, y));
+			Q.push(Maze(x + 1, y));
 			m_field[x + 1][y] = m_field[x][y] + 1;
 		}
 
@@ -469,7 +509,7 @@ void StudentWorld::findExit(Protester* p)
 
 		if (moveInD(GraphObject::up, x, y) && m_field[x][y + 1] == 0)
 		{
-			Q.push(Grid(x, y + 1));
+			Q.push(Maze(x, y + 1));
 			m_field[x][y + 1] = m_field[x][y] + 1;
 		}
 
@@ -477,7 +517,7 @@ void StudentWorld::findExit(Protester* p)
 
 		if (moveInD(GraphObject::down, x, y) && m_field[x][y - 1] == 0)
 		{
-			Q.push(Grid(x, y - 1));
+			Q.push(Maze(x, y - 1));
 			m_field[x][y - 1] = m_field[x][y] + 1;
 		}
 	}
