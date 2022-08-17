@@ -1,0 +1,291 @@
+﻿Project 4 Report - TunnelMan
+
+
+Actors
+
+
+Class Hierarchy:
+I structured my classes as follows:
+
+
+1. Actor Class: An abstract base class for all actors in the game that implements basic functionality for the following:
+   1. isAlive(): boolean function that returns if the actor is alive or not using the private member variable m_alive
+   2. setDead(): declares actors as dead by setting m_alive to false
+   3. moveTo(): 
+                        Makes sure that the actor stays within bounds and moves actor one step using the Graph Object moveTo(int x, int y) function.
+   4. isAnnoyed(int hp): does nothing for Actor
+   5. doSomething(): pure virtual function to make sure that no Actor object can be created in the game.
+2. Person Class: Abstract base class than implements the following functions:
+   1. getHealth() :returns the remaining hitpoints of the Person
+   2. damage (int hp) :decreases the Person’s hp by the specified number
+   3. moveInDirection(): pure virtual function;makes sure no Person object can be constructed
+   4. isAnnoyed(): also pure virtual
+The Person class is the parent class for the Tunnelman and Protester classes, which can both be damaged, annoyed, and are able to move in-game.
+
+
+3. Tunnelman Class: Derived class from Person that implements the functionality of the tunnelman in the game:
+   1. add(int ID): Given a specified ID, increment the number of gold, sonar, or ammo that the Tunnelman holds through the private member variables
+   2. isAnnoyed(int h): Decrease hp, if hp is less than or equal to zero then set status to dead.
+   3. moveInDirection():
+When pressing a key to move
+if the Tunnelman is facing in that direction
+        If there is no boulder blocking the way
+                Move 1 step in that direction
+        Else stay in the same coords
+Else set direction to match the key pressed
+   4. shootWater():
+If there is no boulder or earth in the specified direction
+        Introoduce new Squirt in the game in that direction
+   5. doSomething():
+        Implements all specified functionality for Tunnelman. However, for the case of ‘Z’, program seems to freeze sometimes and completely shut down. I have yet to figure out the reason why and I am unsure of where to start to face an issue that I have had since the first tests of my program.
+
+
+4. Protester Class: Derived from Person class for the same reasons as the Tunnelman.
+   1. getBribed(): If the regular protester picks up a gold nugget, then set protester to leave the oil field state. Else if the hardcore protester picks up the Gold, then reset rest ticks.
+   2. moveInDirection(): 
+If protester faces in the specified direction
+        If is at the end of the grid
+                Switch to opposite direction
+        Otherwise, take one step in that direction
+Else set protester’s direction to the specified direction
+   3. pathToTMan(Direction dir): Given a direction dir
+        Starting from the protester’s pos
+                Move until the tunnelman’s pos
+                        If earth or boulder is blocking the way in that direction
+                                Return false
+                        Otherwise continue loop
+   4. faceTMan():
+Given a direction:
+Determine if Protester if facing directly to the Tunnelman
+        Compare tman’s coords with the protster’s coords to see if the
+        Protester could have the tunnelman in sight
+   5. intersection(): 
+        Get protesters direction when at intersection to make a perpendicular
+        Turn
+                Call Student World’s moveInD() function to check if the protester can take one step in a perpendicular to the protester’s current direction
+   6. directToTMan():
+        Get tunnelman’s position
+                If protster if at the same (x, y) coords
+                        Return its current direction
+                If is at same y/x-coordinate
+                        Check if the tunnelman is to the right/left/up/down
+                        Of the protster
+                                Return direction towards the tunnelman
+   7. viabeTurn():
+        Given the protester’s current direction
+                If both perpendicular direction present a possible turn
+                        Set direction randomly
+                Else if direction A is not viable
+                        Set Direction to B
+                Else
+                        Set direction to A
+   8. doSomething(): 
+        This method implements full functionality of the Regular Protester as specified by the spec but does not account for the Protester being a Hardcore protester. I faced issues with finding a solution for which the doSomething() method could be applied to both versions of protesters without having to re-write the function with minor changes and code repetition for the hardcore protester. I ran out of time trying to find a good implementation and, therefore, the game only accounts for the regular protester’s do something method.
+
+
+5. Earth Class: Subclass of Actor for which the only added functionality is for the doSomething method to simply do nothing and make sure to avoid having Earth be an ABC.
+6. Boulder Class: Subclass of Actor
+   1. annoy ():
+Check if the tunnelman is in range to be annoyed
+        If so, then annoy the tunnelman
+Check if a protester is in range
+        If so, then annoy the protester
+   2. doSomething(): 
+Used two boolean private member variables m_stable and m_falling to keep track of the Boulder’s state and the private member variable m_ticks to keep track of in-game ticks since creation.
+
+
+7. Squirt Class: Subclass of Actor with added functionality to annoy protesters.
+   1. annoyProtesters(): 
+If a protester is not in range
+        Return false
+Else  annoy and return true
+   2. doSomething(): 
+Used private member integer variable m_move to keep track of whether the Squirt has travelled its full distance and incremented its value after each elapsed tick of the game.
+8. PowerUp class: Parent Class of Barrels, Gold, and Goodies which share the characteristic of being picked up by the Tunnelman and vanishing after a specified number of ticks. Used m_ticks to keep track of elapsed ticks
+   1. vanish(int ticks)
+        If elapsed ticks is equal to specified ticks
+                Then set PowerUp to dead
+        Otherwise, increment elapsed ticks
+   2. doSomething(): pure virtual to have PowerUp as ABC
+9. Barrell Class: Subclass of PowerUp
+   1. doSomething():
+Checked if the tunnelman was in range of 4 to set visible and for range of 3 in order to pick up the barrell
+10. Gold Class: Subclass of PowerUp
+   1. doSomething(): 
+Used a private member variable isDropped to distinguish gold dropped by the Tunnelman to bribe protesters and gold that has not being picked up yet by the Tunnelman
+
+
+If isDropped was set to true and a protester was in range, then the protester was bribed and set to leave the oil field state. If not picked up by a protester, then the Gold vanished after 100 ticks from being dropped
+11.  Goodie Class: Parent class of Sonar and Water Pool used to implement the same functionality for the doSomething () method. 
+Sonar and Water Pool actors could be picked up by the Tunnelman and vanished using the same formula to determine their lifetime ticks
+
+
+
+
+StudentWorld
+Private Members:
+
+
+1. Pointer to tunnelman
+2. Pointers to Earth
+3. Vector of Actors
+4. Number of barrels in game
+5. Boolean value to determine if the current tick is the first tick
+6. Number of ticks elapsed
+7. Number of protesters
+8. 2-D array of ints
+9. Maze struct used to find exit for protesters
+
+
+
+
+Public Members:
+1. addActor(Actor* a):
+Given an actor input ptr, the function add the actor to the vector that holds al of the game’s actors
+2. addGoodie():
+Adds Sonar and Water Pool to game
+For Water Pool’s, the do-while searches for coordinates in the grid that are not occupied by earth. If there is no earth at (x, y), then add new water pool.
+3. bool removeDirt(int x, int y)
+Return true if we can remove earth from grid at (x, y) - (x + 4, y + 4)
+        If the position is not empty
+Then delete, set to NULL (remove earth) and set empt = true
+4. bool isWithinR(int x1, int y1, int x2, int y2, int r)
+Given two sets of coordinates determine if they are within a specified radius
+If r is less than the square root of the distance between the coords
+        Return false
+Otherwise, return true
+5. bool isActorWithinR(int x, int y, int r)
+        Given a set of coord and a specified radius
+        Loop through the vector of actors
+                If an actor is within that radius
+                        Return true
+        Otherwise, returns false
+6. addBGB(int& x, int& y)
+        Makes sure that actors do not appear on top of each other; used to add barrells of oil, gold, and boulders
+                Get random coordinates
+                        Loop through the vector of actors
+                                If the distance between the random coord and some actor coords is less than 4
+        Then break out of the while loop and re-generate random coords
+7. addProtesters()
+                Store T number of ticks that have to pass and P number of protesters in level
+                        If we are at first tick or enough ticks have elapsed and we have not exceeded P
+                                Add new Regular or Hardcore protester
+                                Increase # of protesters
+                                Set elapsed ticks to zero
+                        Otherwise, increment # of elapsed ticks
+8. bool isAbovedGround(int x, int y)
+Determine if space at x- x + 4 is empty
+9. bool isEarth(int x, int y)
+                For coords (x, y) up to (x + 4, y + 4)
+                        If m_earth is empty then return true
+                Otherwise, it is not earth so return false
+10. bool isBoulder(int x, int y, int r)
+Loop though vector of actors
+        If actor ID = Boulder ID and is within radius r
+                Return true
+Otherwise, return false
+11. bool tManInR(int r, Actor* a)
+Determine if Tunnelman is within specified radius of actor a
+        If so, return true
+Otherise, return false
+12. isClose(int x, int y, int r)
+        Used to set Gold and Barrels to visible
+        Iterate through the vector of actors
+                If the actor is gold or barrel
+                        Get Actor coords
+                        If actor is within specified radius from input coords
+                                Then set actor to visible
+13. decProtesters(): Decerement number of protesters
+14. moveInD(GraphObject::Direction dir, int x, int y)
+Determine if step in specified direction is possible
+
+
+For the specified direction
+        If the space one step in that direction has no boulder/earth
+                Return true
+Otherwise, return false
+15. protester InR(int r, Actor* a)
+        Determine if protester is in specified radius from actor
+        Iterate through the vector of actors
+                If actor ID matches that of a protester
+                        Return a ptr to that protester
+        Otherwise, return nullptr
+16. findExit(Protester* p)
+This function uses a breadth-first search for protesters in a leave-the-oil-field-state to take one step towards the exit after each elapsed tick
+
+
+First, we set all elements of the 2-D maze array equal to zero
+Then we store the protester’s current coordinates
+
+
+We use an auxiliary queue (First In First Out data structure) to implement that functionality.
+After pushing the exit coordinates onto the queue and setting the value of the exit coords equal to 1:
+
+
+While the queue is not empty
+        Get the first element of the queue and store the coordinates
+        For each of the four directions
+                If a move to the neigbouring position is possible and the position has not
+                already been visited
+                        Then push that maze position onto the stack and increment the
+                        value of that position
+        If no step in each of the four directions is possible or all of the neighbouring positions have already been visited, get the next element from the queue
+
+
+If a move in each of the four direction is possible and that position has not already been visited by the protester
+        Then take one step in that direction
+Testing:
+
+
+ StudentWorld
+
+
+init ():  ensured that everything was correctly initialized
+move(): Very little of the game’s functionality was managed in move(), which allowed me to easily trace to the source of errors/bugs. Incorrectly implemented behaviors were mostly implemented in classes
+cleanUp(): made sure there were no memory leaks or invalid deletions
+
+
+addActor: made sure that the only input was actor pointers
+addBGB: made sure that gold, barrels, and boulders were added correctly
+decBarrel: made sure that the number of barrels was decremented and that the change was visible to the display text
+removeDirt: made sure that the behavior was standard in all situations
+displayText: ensured that the text was displayed and updated correctly
+isClose: made sure that invisible actors appeared as specified by the spec when in range
+isWithinR: ensure thiat the calculations produced the expected results
+actorWithinR: made sure that returned correct result when actor was in range
+isAboveGround(): made sure that actor maintained y-coord
+isEarth(); made sure that no invalid actor steps were taken
+isBoulder(): made sure annoyance was implemented and invalid steps were not produced
+moveInD(): ensured that invalid steps were recognized and avoided
+tManInR(): made sure that when tunnelman was in range it produced game functionality
+findExit(): used integer grids to be able to code trace through function and make sure it produced a reasonable result
+
+
+Actors
+
+
+Functionality of actors was mainly tested by running the game numerous times after implementing a new feature.
+
+
+Actor: Made sure that they worked as abstract base classes and no Actor/Person object could be constructed. Made sure that the redefined functions in base classes were declared virtual.
+
+
+TunnelMan:
+
+
+Tested the keys, health, level-ending/continuance, moves, digging, gold nugget dropping and sounds
+
+
+Made sure that moveInDirection always resulted in a correct step. Made sure that the necessary function were declared virtual to prevent undefined behavior. However, I encountered an issue with the key ‘Z’ as it sometimes resulted exiting the game. I have not been able to identigy the reason why after numerous tests.
+Protster:
+
+
+Ensured that leave the oil field state exit and in-game moves were implemented correctly. My implementation only accounts for Regular protesters and thus the Hardocre protesters present identical behavior except for the instance of annoyance, where the hardcore protester is not set to a leave-the-oil-field state. The protester presented some issues when stuck on a boulder with little space to move. I have not been able to identify the issue for that.
+
+
+Goodies: Made sure that they spawned and appeared as instructed by the spec
+Barrel: Made sure the correct number of barrels was placed in the field
+Boulders: Had some issues with falling when they should and with making sure that more that one protester could be killed at the same time. Most of their functionality was fixed with playtesting.
+Gold Nuggets: Tested if they could be picked up by the tunnelman and the protesters and whether they vanished if dropped and not picked up in time
+Sonar/Water Pool: tested the number of appearances, made sure they  did not appear at the same time
+Earth: Playtesting to check if removing the earth was implemented properly and that paths were blocked correctly
