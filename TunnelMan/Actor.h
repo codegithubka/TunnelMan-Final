@@ -6,20 +6,6 @@
 
 class StudentWorld;
 
-
-/*
-Class Hierarchy
-
-		Person-> Tunnelman, Protester-> Regular, Hardcore Protester
-
-Actor-> Earth, Boulder, Squirt
-
-					Goodie->Sonar, WaterPool
-		PowerUp->	Gold, Barrel
-
-
-*/
-
 class Actor : public GraphObject
 {
 private:

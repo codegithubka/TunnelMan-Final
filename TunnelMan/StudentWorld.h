@@ -9,8 +9,6 @@
 
 #include <iomanip>
 
-const int TID_FREESPACE = 10;
-
 class GraphObject;
 
 
@@ -30,7 +28,6 @@ public:
 
 	void displayText(int s, int lvl, int lives, int hlth, int sq, int g, int snr, int b);
 
-	//void updateText();
 
 	Tunnelman* getPlayer();
 	Protester* protesterInR(int r, Actor* a);
@@ -42,7 +39,7 @@ public:
 	void isClose(int x, int y, int r);
 	void addProtesters();
 	void decProtesters();
-	void findExit(Protester* p); //TODO:
+	void findExit(Protester* p);
 
 	bool removeDirt(int x, int y);
 	bool isWithinR(int x1, int y1, int x2, int y2, int r);
@@ -75,7 +72,6 @@ private:
 		Maze(int a, int b) : x(a), y(b) {}
 	};
 
-	//Other Implementation
 };
 
 #endif //STUDENTWORLD_H

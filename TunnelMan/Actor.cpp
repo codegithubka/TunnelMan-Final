@@ -253,7 +253,7 @@ void Earth::doSomething() {} //does not do anything
 Boulder::Boulder(StudentWorld* world, int x, int y)
 	:Actor(world, TID_BOULDER, x, y, down, 1.0, 1)
 {
-	world->removeDirt(x, y); //FIXME:
+	world->removeDirt(x, y);
 	m_stable = true;
 	m_falling = false;
 	m_ticks = 0;
@@ -378,7 +378,7 @@ void Squirt::doSomething()
 	}
 
 	//increase distance travelled
-	m_move++; //change m_move to sth else //FIXME!!!!
+	m_move++;
 
 }
 
@@ -818,7 +818,6 @@ void Protester::isAnnoyed(int hp)
 		//squirted
 		else if (getID() == TID_PROTESTER)
 			getWorld()->increaseScore(100);
-		//FIXME: !!!
 		else
 			getWorld()->increaseScore(250);
 	}
@@ -838,7 +837,6 @@ void Protester::getBribed()
 	}
 	else
 	{
-		//FIXME: !!!
 		//for hardcore protester
 		getWorld()->increaseScore(50);
 		m_restTicks = max(50, 100 - (int)getWorld()->getLevel() * 10);
@@ -1021,9 +1019,6 @@ bool Protester::intersection()
 		return (getWorld()->moveInD(left, getX(), getY())) ||
 		getWorld()->moveInD(right, getX(), getY());
 }
-
-
-//FIXME: Place directToTMan in Protester::doSomething() method
 
 GraphObject::Direction Protester::directToTMan()
 {

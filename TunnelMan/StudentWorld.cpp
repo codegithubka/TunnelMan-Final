@@ -136,7 +136,7 @@ bool StudentWorld::actorWithinR(int x, int y, int r)
 
 void StudentWorld::addBGB(int& x, int& y)
 {
-	//FIXME: Change for loop maybe!
+	//FIXME: Change for loop maybe?
 
 	//add boulders, barrels, gold
 	int i, j;
@@ -474,9 +474,6 @@ void StudentWorld::cleanUp()
 	delete m_t;
 }
 
-
-//TODO: FIXME; find way to re-write this function while
-//mainting full functionality
 
 void StudentWorld::findExit(Protester* p)
 {
